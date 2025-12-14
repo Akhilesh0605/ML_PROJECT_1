@@ -71,39 +71,41 @@ class DataTransformation:
             logging.info("Train and test data read")
             logging.info("obtaining the preprocessign data")
 
-            preprocessor_obj=self.get_data_transformer_obj()
+            preprocessor_obj = self.get_data_transformer_obj()
 
-            target_column_name=['math_score']
-            numerical_features=["writing_score","reading_score"]
+            target_column_name = "math_score"
+            numerical_features = ["writing_score", "reading_score"]
 
-            input_feature_train_df=train_df.drop("math_score",axis=1    )
-            target_feature_train_df=train_df["math_score"]
+            input_feature_train_df = train_df.drop(columns=[target_column_name], axis=1)
+            target_feature_train_df = train_df[target_column_name]
 
-            input_feature_test_df=test_df.drop("math_score",axis=1)
-            test_feature_test_df=test_df["math_score"]
+            input_feature_test_df = test_df.drop(columns=[target_column_name], axis=1)
+            target_feature_test_df = test_df[target_column_name]
 
-            preprocessor_obj.fit_transform(input_feature_train_df)
-            preprocessor_obj.transform(input_feature_test_df)
+            logging.info("Applying preprocessing object on training and testing datasets.")
+            input_feature_train_arr = preprocessor_obj.fit_transform(input_feature_train_df)
+            input_feature_test_arr = preprocessor_obj.transform(input_feature_test_df)
 
-            train_arr= np.c_[
-                input_feature_train_df,np.array(target_feature_train_df)
+            train_arr = np.c_[
+                input_feature_train_arr, np.array(target_feature_train_df)
             ]
-            test_arr=np.c_[
-                input_feature_test_df,np.array(test_feature_test_df)
+            test_arr = np.c_[
+                input_feature_test_arr, np.array(target_feature_test_df)
             ]
 
-            logging.info("Saved Preprocess data")
+            logging.info("Preprocessing completed. Saving the preprocessor object.")
             save_object(
                 file_path=self.data_transformation_config.preprocessor_obj_file_path,
                 object=preprocessor_obj
             )
+
             return (
                 train_arr,
                 test_arr,
                 self.data_transformation_config.preprocessor_obj_file_path,
             )
         except Exception as e:
-            raise CustomException(e,sys)
-            
+            raise CustomException(e, sys)
+                
 
 
